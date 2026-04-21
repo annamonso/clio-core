@@ -23,6 +23,7 @@ def create_app():
     from .api.llm_dispatch import bp as llm_dispatch_bp
     from .api.semantic import bp as semantic_bp
     from .api.overhead import bp as overhead_bp
+    from .api.conversations import bp as conversations_bp
 
     app.register_blueprint(workers_bp, url_prefix="/api")
     app.register_blueprint(pools_bp, url_prefix="/api")
@@ -35,6 +36,9 @@ def create_app():
     app.register_blueprint(checkpoints_bp, url_prefix="/api")
     app.register_blueprint(semantic_bp, url_prefix="/api")
     app.register_blueprint(overhead_bp, url_prefix="/api")
+    # Conversation/workspace routes carry full paths on their handlers
+    # (both /api/... and /_interceptor/...), so register without a prefix.
+    app.register_blueprint(conversations_bp)
     # LLM dispatch bridge — handles /_session/<id>/... and catch-all
     # Must be registered LAST (catch-all routes)
     app.register_blueprint(llm_dispatch_bp)
