@@ -60,21 +60,9 @@ def create_app():
     def node(node_id):
         return render_template("node.html", node_id=node_id)
 
-    @app.route("/provenance")
-    def provenance():
-        return render_template("provenance.html")
-
     @app.route("/recovery")
     def recovery():
         return render_template("recovery.html")
-
-    @app.route("/call-graph")
-    def call_graph():
-        return render_template("call_graph.html")
-
-    @app.route("/overhead")
-    def overhead():
-        return render_template("overhead.html")
 
     # Clean shutdown
     atexit.register(chimaera_client.finalize)
