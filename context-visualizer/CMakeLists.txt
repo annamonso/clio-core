@@ -12,6 +12,16 @@ install(
         PATTERN "*.js"
 )
 
+# Separately install the React workspace bundle if it has been built.
+# Vite emits hashed js/css plus arbitrary asset types (svg, woff, png, ...),
+# so we cannot rely on the whitelist above. Only exists after `make workspace`.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/context_visualizer/static/workspace")
+    install(
+        DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/context_visualizer/static/workspace/
+        DESTINATION "${PYTHON_SITE_PACKAGES}/context_visualizer/static/workspace"
+    )
+endif()
+
 message(STATUS "Context Visualizer will be installed to: ${PYTHON_SITE_PACKAGES}/context_visualizer")
 
 # Check for runtime Python dependencies (informational only -- not a build failure)

@@ -1,0 +1,7 @@
+# JS toolchain artifacts
+frontend/node_modules/
+frontend/dist/
+
+# Built SPA bundle — produced by `make workspace`, shipped with wheels
+# but not committed to the repo (the source of truth lives in frontend/).
+context_visualizer/static/workspace/
