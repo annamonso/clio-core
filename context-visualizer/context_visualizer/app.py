@@ -1,8 +1,9 @@
 """Flask application factory for the context visualizer."""
 
 import atexit
+from pathlib import Path
 
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 
 from . import chimaera_client
 
@@ -63,6 +64,33 @@ def create_app():
     @app.route("/recovery")
     def recovery():
         return render_template("recovery.html")
+
+    # Workspace SPA shell. Vite writes its build output into
+    # ``static/workspace/``; the ``/static/workspace/...`` asset URLs are
+    # served by Flask's default static handler, so only the HTML entry
+    # point needs a dedicated route. If the SPA has not been built yet,
+    # fall back to a 503 with a clear hint rather than serving a 404 that
+    # looks like a deploy bug.
+    workspace_dir = Path(app.static_folder) / "workspace"
+
+    @app.route("/workspace")
+    def workspace():
+        index_html = workspace_dir / "index.html"
+        if not index_html.is_file():
+            body = (
+                "<!doctype html><meta charset='utf-8'>"
+                "<title>Workspace not built</title>"
+                "<style>body{font-family:sans-serif;padding:40px;max-width:640px}"
+                "code{background:#eee;padding:2px 6px;border-radius:4px}</style>"
+                "<h1>Workspace UI not built yet</h1>"
+                "<p>The multi-agent workspace bundle is missing from "
+                "<code>static/workspace/</code>. Run "
+                "<code>make workspace</code> (or "
+                "<code>cd context-visualizer/frontend &amp;&amp; "
+                "npm install &amp;&amp; npm run build</code>) and reload.</p>"
+            )
+            return body, 503, {"Content-Type": "text/html; charset=utf-8"}
+        return send_from_directory(workspace_dir, "index.html")
 
     # Clean shutdown
     atexit.register(chimaera_client.finalize)
