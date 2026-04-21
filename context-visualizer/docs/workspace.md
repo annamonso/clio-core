@@ -33,10 +33,22 @@ two answer different questions:
 - Cost is computed client-side from `token_usage` against a small per-model
   price table in `frontend/src/lib/cost.ts`. Unknown models degrade to `—`.
 
-## Parity check (manual smoke)
+## Parity check
 
-After wiring, run a small multi-agent scenario against the Chimaera runtime and
-confirm the adapter agrees with existing provenance logic:
+Parity is enforced at two levels.
+
+**Automated (runs in CI):** `tests/test_adapter_parity.py` feeds identical
+fixture data into both the adapter and `compute_workflow_graph` and asserts
+that unique-session count, edge count (as handoff transitions), summed
+interaction count, and aggregate token total agree. Run:
+
+```bash
+python -m unittest tests.test_adapter_parity
+```
+
+**Manual smoke (against a live runtime):** after running a real
+multi-agent scenario against the Chimaera runtime, confirm the adapter
+agrees with the existing provenance logic end-to-end:
 
 1. Pick a parent session id `<cid>` whose children also have interactions.
 2. Call `compute_workflow_graph(...)` directly in Python with `scope=workflow`
