@@ -1,0 +1,29 @@
+@import "./theme/tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Scrollbar styling (works in both themes via tokens). */
+::-webkit-scrollbar           { width: 10px; height: 10px; }
+::-webkit-scrollbar-track     { background: rgb(var(--bg-canvas)); }
+::-webkit-scrollbar-thumb     { background: rgb(var(--border)); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--bg-hover)); }
+
+/* React Flow integration: strip its default styles that don't play with
+   the token system, re-apply selectively. */
+.react-flow__pane        { background-color: rgb(var(--bg-canvas)); }
+.react-flow__minimap     {
+  background-color: rgb(var(--bg-surface)) !important;
+  border: 1px solid rgb(var(--border));
+  border-radius: 6px;
+}
+.react-flow__controls button {
+  background: rgb(var(--bg-surface)) !important;
+  color: rgb(var(--fg-secondary)) !important;
+  border-bottom: 1px solid rgb(var(--border)) !important;
+}
+.react-flow__controls button:hover {
+  background: rgb(var(--bg-hover)) !important;
+}
+.react-flow__attribution { display: none !important; }
