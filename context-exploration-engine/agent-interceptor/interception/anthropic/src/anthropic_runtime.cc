@@ -2,6 +2,9 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
+#include <string>
+#include <vector>
 #include <nlohmann/json.hpp>
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
@@ -14,6 +17,134 @@
 #include "dt_provenance/tracker/tracker_client.h"
 
 namespace dt_provenance::interception::anthropic {
+
+namespace {
+
+// Parsed HTTP(S) proxy settings derived from process env vars. Follows the
+// de-facto `HTTPS_PROXY` / `HTTP_PROXY` convention (with lowercase fallbacks)
+// and an optional `NO_PROXY` bypass list. We only support the CONNECT-target
+// form `[scheme://][user:pass@]host:port`; the scheme is stripped because
+// cpp-httplib's set_proxy takes host/port directly.
+struct ProxySettings {
+  std::string host;
+  int port = 0;
+  std::string user;
+  std::string pass;
+  std::vector<std::string> no_proxy_hosts;
+  bool valid = false;
+};
+
+inline const char* GetEnvFirst(const char* a, const char* b) {
+  const char* v = std::getenv(a);
+  if (v && *v) return v;
+  v = std::getenv(b);
+  return (v && *v) ? v : nullptr;
+}
+
+ProxySettings ReadProxyFromEnv(bool ssl) {
+  ProxySettings out;
+  const char* url = ssl ? GetEnvFirst("HTTPS_PROXY", "https_proxy")
+                        : GetEnvFirst("HTTP_PROXY", "http_proxy");
+  if (!url) return out;
+
+  std::string s(url);
+  if (auto scheme = s.find("://"); scheme != std::string::npos) {
+    s.erase(0, scheme + 3);
+  }
+  if (auto at = s.find('@'); at != std::string::npos) {
+    std::string creds = s.substr(0, at);
+    s.erase(0, at + 1);
+    if (auto c = creds.find(':'); c != std::string::npos) {
+      out.user = creds.substr(0, c);
+      out.pass = creds.substr(c + 1);
+    } else {
+      out.user = std::move(creds);
+    }
+  }
+  // Trim a trailing path segment if the env var included one.
+  if (auto slash = s.find('/'); slash != std::string::npos) {
+    s.erase(slash);
+  }
+  auto colon = s.find(':');
+  if (colon == std::string::npos) return out;
+  out.host = s.substr(0, colon);
+  try {
+    out.port = std::stoi(s.substr(colon + 1));
+  } catch (...) {
+    return out;
+  }
+
+  if (const char* np = GetEnvFirst("NO_PROXY", "no_proxy")) {
+    std::string np_str(np);
+    size_t start = 0;
+    while (start <= np_str.size()) {
+      auto comma = np_str.find(',', start);
+      auto end = (comma == std::string::npos) ? np_str.size() : comma;
+      std::string part = np_str.substr(start, end - start);
+      while (!part.empty() && (part.front() == ' ' || part.front() == '\t')) {
+        part.erase(part.begin());
+      }
+      while (!part.empty() && (part.back() == ' ' || part.back() == '\t')) {
+        part.pop_back();
+      }
+      if (!part.empty()) out.no_proxy_hosts.push_back(std::move(part));
+      if (comma == std::string::npos) break;
+      start = comma + 1;
+    }
+  }
+
+  out.valid = !out.host.empty() && out.port > 0;
+  return out;
+}
+
+bool HostMatchesNoProxy(const std::string& host,
+                        const std::vector<std::string>& list) {
+  for (const auto& pat : list) {
+    if (pat == "*") return true;
+    if (host == pat) return true;
+    // Suffix match: ".example.com" matches "x.example.com".
+    if (!pat.empty() && pat.front() == '.' && host.size() >= pat.size() &&
+        host.compare(host.size() - pat.size(), pat.size(), pat) == 0) {
+      return true;
+    }
+    // Conventional localhost alias.
+    if (pat == "localhost" && (host == "localhost" || host == "127.0.0.1")) {
+      return true;
+    }
+  }
+  return false;
+}
+
+template <typename Cli>
+void ApplyProxyIfNeeded(Cli& cli, const std::string& upstream_host, bool ssl) {
+  auto ps = ReadProxyFromEnv(ssl);
+  if (!ps.valid) return;
+  if (HostMatchesNoProxy(upstream_host, ps.no_proxy_hosts)) return;
+  cli.set_proxy(ps.host, ps.port);
+  if (!ps.user.empty()) cli.set_proxy_basic_auth(ps.user, ps.pass);
+}
+
+// ISO-8601 UTC timestamp (millisecond precision). Populates
+// InteractionRecord::timestamp so the visualizer's timeline has a stable
+// sort key — previously every interaction got the default empty string,
+// which made the workspace timeline render blank even with real traffic.
+std::string IsoNowUtc() {
+  using clock = std::chrono::system_clock;
+  auto now = clock::now();
+  auto t = clock::to_time_t(now);
+  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                now.time_since_epoch()) % 1000;
+  std::tm tm_utc{};
+  gmtime_r(&t, &tm_utc);
+  char buf[40];
+  std::strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &tm_utc);
+  char out[48];
+  std::snprintf(out, sizeof(out), "%s.%03lldZ", buf,
+                static_cast<long long>(ms.count()));
+  return out;
+}
+
+}  // namespace
 
 Runtime::~Runtime() = default;
 
@@ -103,6 +234,11 @@ chi::TaskResume Runtime::InterceptAndForward(
     cli.set_connection_timeout(30);
     cli.set_read_timeout(300);  // LLM responses can be slow
     cli.enable_server_certificate_verification(false);  // TODO: proper cert handling
+    // On restricted networks (e.g. HPC clusters with only a Squid egress),
+    // the only path to the upstream is through a corporate proxy declared
+    // via HTTPS_PROXY/HTTP_PROXY. Honor those so the interceptor works in
+    // the same places curl/pip/git already do.
+    ApplyProxyIfNeeded(cli, upstream_host_, true);
 
     HLOG(kInfo, "Anthropic: sending POST to {}", path);
     auto res = cli.Post(path, hdr, request_body, "application/json");
@@ -115,6 +251,7 @@ chi::TaskResume Runtime::InterceptAndForward(
     httplib::Client cli(upstream_host_, upstream_port_);
     cli.set_connection_timeout(30);
     cli.set_read_timeout(300);
+    ApplyProxyIfNeeded(cli, upstream_host_, false);
 
     auto res = cli.Post(path, hdr, request_body, "application/json");
     if (res) {
@@ -149,6 +286,10 @@ chi::TaskResume Runtime::InterceptAndForward(
     InteractionRecord record;
     record.session_id = session_id;
     record.provider = Provider::kAnthropic;
+    // Wall-clock timestamp at record-build time (best proxy for "when the
+    // turn happened" given we don't carry the request-arrival time through
+    // the task coroutine). Required by the workspace timeline.
+    record.timestamp = IsoNowUtc();
     record.request.method = "POST";
     record.request.path = path;
     record.request.headers = request_headers;
