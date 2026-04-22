@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Workspace -- Chimaera Visualizer{% endblock %}
+
+{% block head %}
+{% for href in workspace_styles %}<link rel="stylesheet" href="{{ href }}">
+{% endfor %}
+<style>
+    /* Workspace is full-bleed: drop the 1200px cap used by other pages. */
+    main.content { max-width: none; margin: 0; padding: 0; }
+    /* Fit the SPA below the 3.5rem navbar without overflowing the viewport.
+       The SPA's outer div uses Tailwind h-screen (100vh), which would spill
+       past the nav; clamp it to the available space. */
+    #root { height: calc(100vh - 3.5rem); }
+    #root > div { height: 100% !important; }
+    /* Keep the SPA's canvas token aligned with the dashboard bg in both
+       themes: #1a1a2e (dark) and #f3f4f6 (light). */
+    :root, [data-theme="dark"] { --bg-canvas: 26 26 46; }
+    [data-theme="light"] { --bg-canvas: 243 244 246; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="root"></div>
+{% endblock %}
+
+{% block scripts %}
+{% for src in workspace_scripts %}<script type="module" crossorigin src="{{ src }}"></script>
+{% endfor %}
+{% endblock %}

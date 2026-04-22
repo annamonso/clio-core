@@ -1,6 +1,10 @@
-/* Context Visualizer -- dark-themed dashboard */
+/* Context Visualizer -- themed dashboard.
+   Tokens come in dark (default) and light variants, selected via
+   `data-theme` on <html>. The same attribute drives the workspace SPA,
+   so one toggle covers the whole site. */
 
-:root {
+:root,
+[data-theme="dark"] {
     --bg: #1a1a2e;
     --bg-card: #16213e;
     --bg-table: #0f3460;
@@ -11,6 +15,27 @@
     --border: #2a2a4a;
     --success: #4caf50;
     --warning: #ff9800;
+    --hover-overlay: rgba(255, 255, 255, 0.03);
+    --row-divider: rgba(255, 255, 255, 0.05);
+    --row-busy: rgba(233, 69, 96, 0.12);
+    --row-idle: rgba(76, 175, 80, 0.08);
+}
+
+[data-theme="light"] {
+    --bg: #f3f4f6;
+    --bg-card: #ffffff;
+    --bg-table: #e5e7eb;
+    --accent: #d23150;
+    --accent-secondary: #0284c7;
+    --text: #1a1a2e;
+    --text-muted: #4b5563;
+    --border: #d1d5db;
+    --success: #2e7d32;
+    --warning: #b45309;
+    --hover-overlay: rgba(0, 0, 0, 0.03);
+    --row-divider: rgba(0, 0, 0, 0.05);
+    --row-busy: rgba(210, 49, 80, 0.08);
+    --row-idle: rgba(46, 125, 50, 0.08);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,6 +86,27 @@ body {
 }
 .nav-status.connected { color: var(--success); }
 .nav-status.error { color: var(--accent); }
+
+/* Theme toggle (swaps dark/light for the whole site). */
+.theme-toggle {
+    margin-left: 0.75rem;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.theme-toggle:hover {
+    color: var(--text);
+    background: var(--bg-table);
+}
+.theme-toggle .theme-icon { display: none; }
+[data-theme="dark"] .theme-toggle .theme-icon-dark { display: inline; }
+[data-theme="light"] .theme-toggle .theme-icon-light { display: inline; }
 
 /* Content */
 .content {
@@ -147,11 +193,11 @@ td code {
     border-radius: 3px;
     font-size: 0.9em;
 }
-tr:hover { background: rgba(255,255,255,0.03); }
+tr:hover { background: var(--hover-overlay); }
 
 /* Row color coding */
-tr.row-busy { background: rgba(233, 69, 96, 0.12); }
-tr.row-idle { background: rgba(76, 175, 80, 0.08); }
+tr.row-busy { background: var(--row-busy); }
+tr.row-idle { background: var(--row-idle); }
 
 /* Config */
 .config-pre {
@@ -378,10 +424,10 @@ tr.row-idle { background: rgba(76, 175, 80, 0.08); }
 }
 .method-table td {
     padding: 0.35rem 0.6rem;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid var(--row-divider);
 }
 .method-table tr:hover {
-    background: rgba(255,255,255,0.03);
+    background: var(--hover-overlay);
 }
 
 /* BDev cards */
@@ -435,7 +481,7 @@ tr.row-idle { background: rgba(76, 175, 80, 0.08); }
     justify-content: space-between;
     font-size: 0.8rem;
     padding: 0.2rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid var(--row-divider);
 }
 .bdev-stat span:first-child {
     color: var(--text-muted);

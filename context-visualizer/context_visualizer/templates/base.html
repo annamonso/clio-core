@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Chimaera Dashboard{% endblock %}</title>
+    <script>
+        // Apply stored theme before first paint so we never flash the wrong
+        // palette. Uses the same localStorage key as the workspace SPA
+        // (`theme`) so toggling in one place reflects everywhere.
+        (function () {
+            try {
+                var t = localStorage.getItem("theme");
+                if (t !== "light" && t !== "dark") t = "dark";
+                document.documentElement.dataset.theme = t;
+            } catch (e) {
+                document.documentElement.dataset.theme = "dark";
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
     {% block head %}{% endblock %}
@@ -19,10 +33,26 @@
             <li><a href="/workspace" class="{% if request.path == '/workspace' %}active{% endif %}">Workspace</a></li>
         </ul>
         <div class="nav-status" id="conn-status">Connecting...</div>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">
+            <span class="theme-icon theme-icon-dark">&#9790;</span>
+            <span class="theme-icon theme-icon-light">&#9728;</span>
+        </button>
     </nav>
     <main class="content">
         {% block content %}{% endblock %}
     </main>
+    <script>
+        (function () {
+            var btn = document.getElementById("themeToggle");
+            if (!btn) return;
+            btn.addEventListener("click", function () {
+                var cur = document.documentElement.dataset.theme === "light" ? "light" : "dark";
+                var next = cur === "light" ? "dark" : "light";
+                document.documentElement.dataset.theme = next;
+                try { localStorage.setItem("theme", next); } catch (e) {}
+            });
+        })();
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

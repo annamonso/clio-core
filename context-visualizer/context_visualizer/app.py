@@ -1,11 +1,34 @@
 """Flask application factory for the context visualizer."""
 
 import atexit
+import re
 from pathlib import Path
 
 from flask import Flask, render_template, send_from_directory
 
 from . import chimaera_client
+
+
+_SCRIPT_SRC_RE = re.compile(r'<script[^>]*\bsrc="([^"]+)"', re.IGNORECASE)
+_LINK_HREF_RE = re.compile(
+    r'<link[^>]*\brel="stylesheet"[^>]*\bhref="([^"]+)"'
+    r'|<link[^>]*\bhref="([^"]+)"[^>]*\brel="stylesheet"',
+    re.IGNORECASE,
+)
+
+
+def _parse_workspace_assets(index_html_path: Path):
+    """Extract hashed JS/CSS URLs from the Vite-built index.html.
+
+    Vite rewrites asset filenames with content hashes on each build, so we
+    can't hardcode them. Parsing the built HTML at request time keeps the
+    Flask template in sync with the latest SPA build without a manifest
+    plumb-through.
+    """
+    html = index_html_path.read_text(encoding="utf-8")
+    scripts = _SCRIPT_SRC_RE.findall(html)
+    styles = [m[0] or m[1] for m in _LINK_HREF_RE.findall(html)]
+    return scripts, styles
 
 
 def create_app():
@@ -90,7 +113,12 @@ def create_app():
                 "npm install &amp;&amp; npm run build</code>) and reload.</p>"
             )
             return body, 503, {"Content-Type": "text/html; charset=utf-8"}
-        return send_from_directory(workspace_dir, "index.html")
+        scripts, styles = _parse_workspace_assets(index_html)
+        return render_template(
+            "workspace.html",
+            workspace_scripts=scripts,
+            workspace_styles=styles,
+        )
 
     # Clean shutdown
     atexit.register(chimaera_client.finalize)
