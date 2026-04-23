@@ -155,6 +155,27 @@ static std::string LocalHostname() {
   return std::string();
 }
 
+// ISO-8601 UTC timestamp (millisecond precision). Populates
+// InteractionRecord::timestamp so the visualizer's timeline has a stable
+// sort key — without this, records written by the proxy's BuildInteractionRecord
+// path (the common path) had timestamp="" and the workspace timeline rendered
+// blank. Mirrors the helper in the anthropic interceptor (commit 1bc7c447).
+static std::string IsoNowUtc() {
+  using clock = std::chrono::system_clock;
+  auto now = clock::now();
+  auto t = clock::to_time_t(now);
+  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                now.time_since_epoch()) % 1000;
+  std::tm tm_utc{};
+  gmtime_r(&t, &tm_utc);
+  char buf[40];
+  std::strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", &tm_utc);
+  char out[48];
+  std::snprintf(out, sizeof(out), "%s.%03lldZ", buf,
+                static_cast<long long>(ms.count()));
+  return out;
+}
+
 static std::string BuildInteractionRecord(
     const std::string& session_id, const std::string& scenario_id,
     const std::string& agent_host, Provider provider,
@@ -166,6 +187,10 @@ static std::string BuildInteractionRecord(
   record.session_id = session_id;
   record.scenario_id = scenario_id;
   record.host = agent_host.empty() ? LocalHostname() : agent_host;
+  // Wall-clock timestamp at record-build time. Required by the workspace
+  // timeline — an empty string here makes the playhead + lane rendering
+  // collapse to width 0.
+  record.timestamp = IsoNowUtc();
   record.provider = provider;
   record.request.method = "POST";
   record.request.path = path;
