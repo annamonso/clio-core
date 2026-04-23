@@ -102,14 +102,36 @@ export function useConversationData(conversationId: string | null): Conversation
       roleBySession.set(n.session_id, n.agent_role ?? "unknown");
     }
 
-    const sorted = [...rawTurns].sort(
-      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-    );
+    // Parse each timestamp up front so we can (a) sort by it safely even
+    // when some are blank, and (b) fall back to a synthetic per-turn offset
+    // when a legacy record has ``timestamp=""``. Without the fallback the
+    // workspace timeline renders blank for pre-timestamp-fix records
+    // because ``new Date("").getTime() === NaN`` collapses every bar to
+    // width 0.
+    const parsedTs: { src: ConversationTurn; parsed: number | null }[] = rawTurns.map((t) => {
+      const p = new Date(t.timestamp).getTime();
+      return { src: t, parsed: Number.isFinite(p) ? p : null };
+    });
+    parsedTs.sort((a, b) => {
+      // Real timestamps first (in chronological order); blanks trailing
+      // but stable relative to each other via turn_number so they still
+      // render in a sensible order.
+      const ap = a.parsed, bp = b.parsed;
+      if (ap != null && bp != null) return ap - bp;
+      if (ap != null) return -1;
+      if (bp != null) return 1;
+      return (a.src.turn_number ?? 0) - (b.src.turn_number ?? 0);
+    });
 
-    const turns: NormalizedTurn[] = sorted.map((t) => {
+    // Pick a base epoch for synthetic timestamps: first real ts we have,
+    // else "now", so the synthetic range lands in a realistic window.
+    const firstRealTs = parsedTs.find((p) => p.parsed != null)?.parsed ?? Date.now();
+    const SYNTHETIC_STEP_MS = 1000;
+
+    const turns: NormalizedTurn[] = parsedTs.map(({ src: t, parsed }, idx) => {
       const sessionId = t.session_id ?? "unknown";
       const role = roleBySession.get(sessionId) ?? "unknown";
-      const ts = new Date(t.timestamp).getTime();
+      const ts = parsed ?? firstRealTs + idx * SYNTHETIC_STEP_MS;
       const hasLatency = t.total_latency_ms != null && !Number.isNaN(t.total_latency_ms);
       // Flat fields — emitted by the backend adapter since the live-feed port.
       // Old interaction records (pre-flat-fields backend) lack them, so each
