@@ -48,6 +48,9 @@ def create_app():
     from .api.semantic import bp as semantic_bp
     from .api.overhead import bp as overhead_bp
     from .api.conversations import bp as conversations_bp
+    from .api.inter_agent import bp as inter_agent_bp
+    from .api.scenarios import bp as scenarios_bp
+    from .api.interactions import bp as interactions_bp
 
     app.register_blueprint(workers_bp, url_prefix="/api")
     app.register_blueprint(pools_bp, url_prefix="/api")
@@ -60,6 +63,11 @@ def create_app():
     app.register_blueprint(checkpoints_bp, url_prefix="/api")
     app.register_blueprint(semantic_bp, url_prefix="/api")
     app.register_blueprint(overhead_bp, url_prefix="/api")
+    app.register_blueprint(inter_agent_bp, url_prefix="/api")
+    app.register_blueprint(scenarios_bp, url_prefix="/api")
+    # Interactions blueprint owns /_interceptor/interactions (reference-compat
+    # path that the ported InteractionsTable + useLiveInteractions expect).
+    app.register_blueprint(interactions_bp)
     # Conversation/workspace routes carry full paths on their handlers
     # (both /api/... and /_interceptor/...), so register without a prefix.
     app.register_blueprint(conversations_bp)
@@ -88,6 +96,13 @@ def create_app():
     def recovery():
         return render_template("recovery.html")
 
+    # Compatibility stubs for scripts from JaimeCernuda/agent-interception: they
+    # preflight /_interceptor/health and abort if it's missing. We don't expose
+    # the full /_interceptor/* API, just enough for the scripts to proceed.
+    @app.route("/_interceptor/health")
+    def _interceptor_health():
+        return {"status": "ok"}, 200
+
     # Workspace SPA shell. Vite writes its build output into
     # ``static/workspace/``; the ``/static/workspace/...`` asset URLs are
     # served by Flask's default static handler, so only the HTML entry
@@ -96,17 +111,17 @@ def create_app():
     # looks like a deploy bug.
     workspace_dir = Path(app.static_folder) / "workspace"
 
-    @app.route("/workspace")
-    def workspace():
+    @app.route("/call-graph")
+    def call_graph():
         index_html = workspace_dir / "index.html"
         if not index_html.is_file():
             body = (
                 "<!doctype html><meta charset='utf-8'>"
-                "<title>Workspace not built</title>"
+                "<title>Call Graph not built</title>"
                 "<style>body{font-family:sans-serif;padding:40px;max-width:640px}"
                 "code{background:#eee;padding:2px 6px;border-radius:4px}</style>"
-                "<h1>Workspace UI not built yet</h1>"
-                "<p>The multi-agent workspace bundle is missing from "
+                "<h1>Call Graph UI not built yet</h1>"
+                "<p>The multi-agent call-graph bundle is missing from "
                 "<code>static/workspace/</code>. Run "
                 "<code>make workspace</code> (or "
                 "<code>cd context-visualizer/frontend &amp;&amp; "
@@ -119,6 +134,11 @@ def create_app():
             workspace_scripts=scripts,
             workspace_styles=styles,
         )
+
+    @app.route("/workspace")
+    def workspace_redirect():
+        from flask import redirect
+        return redirect("/call-graph", code=308)
 
     # Clean shutdown
     atexit.register(chimaera_client.finalize)

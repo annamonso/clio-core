@@ -248,6 +248,22 @@ def _merge_chronological(sessions: list[dict]) -> list[dict]:
         if response_text:
             preview = response_text[:240] + ("…" if len(response_text) > 240 else "")
 
+        # Flat fields that the ported reference frontend reads directly on
+        # ConversationTurn (in addition to the nested ``context_metrics``).
+        # Keeping both so older consumers that already read context_metrics
+        # don't break.
+        status_code = (inter.get("response") or {}).get("status_code")
+        resp = inter.get("response") or {}
+        error_text: str | None = None
+        if isinstance(resp.get("error"), str) and resp["error"]:
+            error_text = resp["error"]
+        elif isinstance(status_code, int) and status_code >= 400:
+            # Surface the response text as the error blurb when we have no
+            # explicit error field — most providers put the message there.
+            error_text = response_text or None
+
+        total_tokens_flat = context_metrics.get("total_tokens")
+
         merged.append({
             "id": interaction_id,
             "session_id": e["session_id"],
@@ -261,6 +277,12 @@ def _merge_chronological(sessions: list[dict]) -> list[dict]:
             "response_text_preview": preview,
             "tool_calls": tool_calls,
             "total_latency_ms": ctx.get("latency_ms"),
+            "status_code": status_code,
+            "error": error_text,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "total_tokens": total_tokens_flat,
+            "total_cost_usd": ctx.get("delta_cost_usd"),
         })
 
         prev_sid = e["session_id"]
@@ -320,11 +342,25 @@ def build_agent_graph(parent_id: str, sessions: list[dict]) -> dict:
 
         total_tokens = 0
         total_cost = 0.0
+        host_votes: dict[str, int] = {}
+        scenario_votes: dict[str, int] = {}
         for inter in inters:
             ctx = ctx_by_seq.get(inter.get("sequence_id", -1), {})
             total_tokens += (ctx.get("delta_input_tokens") or 0)
             total_tokens += (ctx.get("delta_output_tokens") or 0)
             total_cost += ctx.get("delta_cost_usd") or 0.0
+            h = inter.get("host")
+            if isinstance(h, str) and h:
+                host_votes[h] = host_votes.get(h, 0) + 1
+            s = inter.get("scenario_id")
+            if isinstance(s, str) and s:
+                scenario_votes[s] = scenario_votes.get(s, 0) + 1
+
+        host = max(host_votes.items(), key=lambda kv: kv[1])[0] if host_votes else ""
+        scenario_id = (
+            max(scenario_votes.items(), key=lambda kv: kv[1])[0]
+            if scenario_votes else ""
+        )
 
         nodes.append({
             "session_id": sid,
@@ -332,6 +368,8 @@ def build_agent_graph(parent_id: str, sessions: list[dict]) -> dict:
             "interaction_count": len(inters),
             "total_tokens": total_tokens,
             "total_cost_usd": total_cost,
+            "host": host,
+            "scenario_id": scenario_id,
         })
 
     edges: list[dict] = []
@@ -340,6 +378,7 @@ def build_agent_graph(parent_id: str, sessions: list[dict]) -> dict:
         sid = turn["session_id"]
         if prev_sid is not None and prev_sid != sid:
             edges.append({
+                "kind": "handoff",
                 "from_session_id": prev_sid,
                 "to_session_id": sid,
                 "interaction_id": turn["id"],

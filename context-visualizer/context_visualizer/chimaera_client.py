@@ -352,12 +352,28 @@ def restart_node(ip_address, port=9413):
     }
 
 
-def forward_llm_request(session_id, provider, path, headers, body, timeout=300):
-    """Forward an LLM request via the proxy ChiMod's Monitor handler."""
+def forward_llm_request(
+    session_id,
+    provider,
+    path,
+    headers,
+    body,
+    timeout=300,
+    scenario_id="",
+    agent_host="",
+):
+    """Forward an LLM request via the proxy ChiMod's Monitor handler.
+
+    scenario_id groups independent peer agents into one multi-agent scenario.
+    agent_host is the hostname of the agent that emitted the request (may
+    differ from the interceptor's own host when agents run on separate nodes).
+    """
     import json as _json
     query = _json.dumps({
         "action": "forward",
         "session_id": session_id,
+        "scenario_id": scenario_id,
+        "agent_host": agent_host,
         "provider": provider,
         "path": path,
         "headers": headers,

@@ -16,6 +16,16 @@ export interface NormalizedTurn {
   parentInteractionId: string | null;
   responsePreview: string | null;
   toolCalls: Record<string, unknown>[];
+  // Flat-fields surface from the backend adapter; used by the Workspace
+  // error-toast-on-error-turn feature and by any future per-turn KPI
+  // rendering. All optional because old interaction records may lack them.
+  statusCode: number | null;
+  error: string | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  totalTokens: number | null;
+  totalCostUsd: number | null;
+  isError: boolean;
 }
 
 export interface ConversationData {
@@ -101,6 +111,12 @@ export function useConversationData(conversationId: string | null): Conversation
       const role = roleBySession.get(sessionId) ?? "unknown";
       const ts = new Date(t.timestamp).getTime();
       const hasLatency = t.total_latency_ms != null && !Number.isNaN(t.total_latency_ms);
+      // Flat fields — emitted by the backend adapter since the live-feed port.
+      // Old interaction records (pre-flat-fields backend) lack them, so each
+      // read falls back to null and ``isError`` stays false.
+      const statusCode = typeof t.status_code === "number" ? t.status_code : null;
+      const error = typeof t.error === "string" && t.error ? t.error : null;
+      const isError = (statusCode != null && statusCode >= 400) || error != null;
       return {
         id: t.id,
         sessionId,
@@ -115,6 +131,13 @@ export function useConversationData(conversationId: string | null): Conversation
         parentInteractionId: t.parent_interaction_id,
         responsePreview: t.response_text_preview,
         toolCalls: Array.isArray(t.tool_calls) ? t.tool_calls : [],
+        statusCode,
+        error,
+        inputTokens: t.input_tokens ?? null,
+        outputTokens: t.output_tokens ?? null,
+        totalTokens: t.total_tokens ?? null,
+        totalCostUsd: t.total_cost_usd ?? null,
+        isError,
       };
     });
 

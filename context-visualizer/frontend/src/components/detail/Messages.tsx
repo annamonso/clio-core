@@ -17,9 +17,88 @@ function RoleBadge({ role }: { role: string }) {
   );
 }
 
+function ReminderBlock({ body }: { body: string }) {
+  const [open, setOpen] = useState(false);
+  const preview =
+    body.slice(0, 140).replace(/\s+/g, " ").trim() +
+    (body.length > 140 ? "…" : "");
+  return (
+    <div className="my-1 rounded border border-border-soft bg-surface/60">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center gap-2 px-2 py-1.5 text-left hover:bg-elevate/40 transition-colors"
+      >
+        <span
+          className="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded"
+          style={{
+            color: "rgb(var(--role-unknown))",
+            backgroundColor: "rgb(var(--role-unknown) / 0.12)",
+            border: "1px solid rgb(var(--role-unknown) / 0.3)",
+          }}
+          title="CLI-injected runtime context — not user-authored"
+        >
+          CLI scaffolding
+        </span>
+        <span className="text-[11px] text-fg-muted tabular-nums">
+          {body.length.toLocaleString()} chars
+        </span>
+        <span className="flex-1 truncate text-[11px] text-fg-muted italic">
+          {open ? "" : preview}
+        </span>
+        <span className="text-fg-muted text-xs shrink-0">{open ? "▾" : "▸"}</span>
+      </button>
+      {open && (
+        <pre className="px-2 pb-2 text-xs text-fg-secondary whitespace-pre-wrap font-mono">
+          {body}
+        </pre>
+      )}
+    </div>
+  );
+}
+
+/** Splits a plain-text blob on <system-reminder>…</system-reminder> markers
+ *  so the renderer can dim the scaffolding and leave the real user text full-opacity. */
+function renderTextWithReminders(text: string, keyPrefix: string) {
+  const chunks: { kind: "text" | "reminder"; body: string; key: string }[] = [];
+  const re = /<system-reminder>([\s\S]*?)<\/system-reminder>/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let i = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) {
+      const body = text.slice(last, m.index);
+      if (body.trim()) chunks.push({ kind: "text", body, key: `${keyPrefix}-t${i++}` });
+    }
+    chunks.push({ kind: "reminder", body: m[1], key: `${keyPrefix}-r${i++}` });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) {
+    const body = text.slice(last);
+    if (body.trim()) chunks.push({ kind: "text", body, key: `${keyPrefix}-t${i++}` });
+  }
+  return chunks;
+}
+
 function ContentBlock({ content }: { content: unknown }) {
   if (content == null) return null;
   if (typeof content === "string") {
+    // Pull out <system-reminder> blocks first — they dominate the visual field
+    // when the CLI injects MCP instructions / skill manifests into user messages.
+    if (content.includes("<system-reminder>")) {
+      const chunks = renderTextWithReminders(content, "cb");
+      return (
+        <div className="space-y-1">
+          {chunks.map((c) =>
+            c.kind === "reminder" ? (
+              <ReminderBlock key={c.key} body={c.body} />
+            ) : (
+              <ContentBlock key={c.key} content={c.body} />
+            ),
+          )}
+        </div>
+      );
+    }
     // Detect code fences
     if (content.includes("```")) {
       const parts = content.split(/(```[\s\S]*?```)/g);

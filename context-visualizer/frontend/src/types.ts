@@ -148,7 +148,11 @@ export interface AgentNode {
   interaction_count: number;
   total_tokens: number;
   total_cost_usd: number;
+  host?: string;
+  scenario_id?: string;
 }
+
+export type AgentEdgeKind = "handoff" | "inter_agent_msg" | "tool_invoke";
 
 export interface AgentEdge {
   from_session_id: string;
@@ -156,12 +160,58 @@ export interface AgentEdge {
   interaction_id: string;
   turn_number: number;
   latency_ms: number | null;
+  kind?: AgentEdgeKind;
 }
 
 export interface AgentGraph {
   conversation_id: string;
   nodes: AgentNode[];
   edges: AgentEdge[];
+}
+
+export interface ScenarioAgentNode {
+  agent_id: string;
+  session_id: string;
+  agent_role: "peer";
+  host: string;
+  interaction_count: number;
+  total_tokens: number;
+  total_cost_usd: number;
+  sub_sessions: string[];
+}
+
+export interface ScenarioEdge {
+  kind: "inter_agent_msg";
+  event_id: string;
+  correlation_id: string;
+  from_session_id: string;
+  from_sub_session_id?: string;
+  to_session_id: string;
+  to_sub_session_id?: string;
+  from_host: string;
+  to_host: string;
+  ts_start: string | null;
+  ts_done: string | null;
+  tool_name: string;
+  status: string;
+  latency_ms: number;
+  payload_preview: string;
+}
+
+export interface ScenarioGraph {
+  scenario_id: string;
+  agents: ScenarioAgentNode[];
+  edges: ScenarioEdge[];
+}
+
+export interface ScenarioSummary {
+  scenario_id: string;
+  agent_count: number;
+  agents: string[];
+  hosts: string[];
+  event_count: number;
+  firstEvent: string;
+  lastEvent: string;
 }
 
 export interface ConversationSummary {
@@ -184,6 +234,14 @@ export interface ConversationTurn {
   response_text_preview: string | null;
   tool_calls: Record<string, unknown>[] | null;
   total_latency_ms: number | null;
+  // Flat fields emitted by the backend adapter. Present on all recent
+  // records; optional here because old blobs may lack them.
+  status_code?: number | null;
+  error?: string | null;
+  input_tokens?: number | null;
+  output_tokens?: number | null;
+  total_tokens?: number | null;
+  total_cost_usd?: number | null;
 }
 
 export type ClearScope = "all" | "24h" | "session";

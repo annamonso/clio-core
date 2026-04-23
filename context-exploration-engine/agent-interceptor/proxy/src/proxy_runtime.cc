@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <unistd.h>
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #include <httplib.h>
@@ -145,14 +146,26 @@ static void ForwardDirect(const std::string& upstream_url,
 /**
  * Build an interaction record JSON from request/response data
  */
+static std::string LocalHostname() {
+  char buf[256];
+  if (gethostname(buf, sizeof(buf)) == 0) {
+    buf[sizeof(buf) - 1] = '\0';
+    return std::string(buf);
+  }
+  return std::string();
+}
+
 static std::string BuildInteractionRecord(
-    const std::string& session_id, Provider provider,
+    const std::string& session_id, const std::string& scenario_id,
+    const std::string& agent_host, Provider provider,
     const std::string& path, const std::string& headers_json_str,
     const std::string& request_body, int response_status,
     const std::string& resp_headers_str, const std::string& resp_body,
     double latency_ms) {
   InteractionRecord record;
   record.session_id = session_id;
+  record.scenario_id = scenario_id;
+  record.host = agent_host.empty() ? LocalHostname() : agent_host;
   record.provider = provider;
   record.request.method = "POST";
   record.request.path = path;
@@ -208,6 +221,18 @@ static std::string BuildInteractionRecord(
     usage.cache_read_tokens = record.metrics.cache_read_tokens;
     auto cost = CostEstimator::Estimate(provider, record.model, usage);
     record.metrics.cost_usd = cost.total_cost;
+  } else {
+    // Error response — surface status + error preview so the dashboard
+    // can render the failure. Upstream error bodies are normally small
+    // JSON, but truncate to keep rogue payloads bounded.
+    record.response.is_streaming = false;
+    constexpr size_t kMaxErrPreview = 2048;
+    if (resp_body.size() > kMaxErrPreview) {
+      record.response.text = resp_body.substr(0, kMaxErrPreview) + "…[truncated]";
+    } else {
+      record.response.text = resp_body;
+    }
+    record.response.stop_reason = "error";
   }
 
   record.metrics.total_latency_ms = latency_ms;
@@ -807,6 +832,8 @@ chi::TaskResume Runtime::ForwardHttp(hipc::FullPtr<ForwardHttpTask> task,
   std::string query_json(task->query_json_.str());
   auto query = json::parse(query_json);
   std::string session_id = query.value("session_id", "");
+  std::string scenario_id = query.value("scenario_id", "");
+  std::string agent_host = query.value("agent_host", "");
   std::string provider_name = query.value("provider", "");
   std::string path = query.value("path", "/");
   std::string headers_str = query.contains("headers")
@@ -843,15 +870,18 @@ chi::TaskResume Runtime::ForwardHttp(hipc::FullPtr<ForwardHttpTask> task,
        session_id, provider_name, resp_status,
        static_cast<int>(latency_ms));
 
-  // Build interaction record for tracker storage — timed separately from LLM call
+  // Build interaction record for tracker storage — timed separately from LLM call.
+  // Store *every* response (incl. 4xx/5xx) — error observability is the point of
+  // the tracker. BuildInteractionRecord skips body parsing for non-2xx responses
+  // and surfaces the error text instead.
   std::string record_json;
-  if (resp_status >= 200 && resp_status < 300) {
+  if (resp_status >= 100 && resp_status < 600) {
     try {
       const bool logging = overhead_logging_.load(std::memory_order_relaxed);
       auto record_start = logging ? std::chrono::steady_clock::now()
                                   : std::chrono::steady_clock::time_point{};
       record_json = BuildInteractionRecord(
-          session_id, provider, path, headers_str, body,
+          session_id, scenario_id, agent_host, provider, path, headers_str, body,
           resp_status, resp_headers, resp_body, latency_ms);
       if (logging && !record_json.empty()) {
         auto record_end = std::chrono::steady_clock::now();

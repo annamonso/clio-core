@@ -11,6 +11,8 @@ TEST_CASE("InteractionRecord round-trips through JSON losslessly",
   InteractionRecord original;
   original.sequence_id = 42;
   original.session_id = "agent-0";
+  original.scenario_id = "expt-multi-agent";
+  original.host = "ares-comp-11";
   original.timestamp = "2026-03-02T14:30:00.000Z";
   original.provider = Provider::kAnthropic;
   original.model = "claude-sonnet-4-6";
@@ -56,6 +58,8 @@ TEST_CASE("InteractionRecord round-trips through JSON losslessly",
   // Verify all fields
   REQUIRE(restored.sequence_id == 42);
   REQUIRE(restored.session_id == "agent-0");
+  REQUIRE(restored.scenario_id == "expt-multi-agent");
+  REQUIRE(restored.host == "ares-comp-11");
   REQUIRE(restored.timestamp == "2026-03-02T14:30:00.000Z");
   REQUIRE(restored.provider == Provider::kAnthropic);
   REQUIRE(restored.model == "claude-sonnet-4-6");

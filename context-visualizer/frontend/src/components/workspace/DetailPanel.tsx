@@ -13,6 +13,8 @@ type Tab = typeof TABS[number];
 
 interface Props {
   turn: NormalizedTurn | null;
+  /** When provided, show a "×" button in the header that calls this. */
+  onClose?: () => void;
 }
 
 const CACHE_LIMIT = 40;
@@ -26,7 +28,7 @@ function roleTokenVar(role: string): string {
   }
 }
 
-export default function DetailPanel({ turn }: Props) {
+export default function DetailPanel({ turn, onClose }: Props) {
   const [tab, setTab] = useState<Tab>("Summary");
   const [interaction, setInteraction] = useState<Interaction | null>(null);
   const [loading, setLoading] = useState(false);
@@ -108,9 +110,22 @@ export default function DetailPanel({ turn }: Props) {
             session {turn.sessionId}
           </div>
         </div>
-        <div className="text-right text-[11px] text-fg-muted tabular-nums shrink-0">
-          {turn.hasLatency && <div>{turn.latencyMs.toFixed(0)}ms</div>}
-          <div>{new Date(turn.startTs).toLocaleTimeString()}</div>
+        <div className="text-right text-[11px] text-fg-muted tabular-nums shrink-0 flex items-start gap-2">
+          <div>
+            {turn.hasLatency && <div>{turn.latencyMs.toFixed(0)}ms</div>}
+            <div>{new Date(turn.startTs).toLocaleTimeString()}</div>
+          </div>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Hide detail panel"
+              title="Hide detail panel"
+              className="text-fg-muted hover:text-fg-primary text-sm leading-none px-1"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
 

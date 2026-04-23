@@ -3,6 +3,7 @@ import type { Interaction } from "../../types";
 import StatusHero from "./StatusHero";
 import KpiCard from "./KpiCard";
 import TokenBar from "./TokenBar";
+import ContextBudgetCard from "./ContextBudgetCard";
 import JsonViewer from "../ui/JsonViewer";
 import { formatBytes, formatCost, formatLatency, formatTokens } from "../../lib/format";
 
@@ -59,6 +60,8 @@ export default function SummaryTab({ interaction: i }: Props) {
         path={i.path}
         isStreaming={i.is_streaming}
       />
+
+      <ContextBudgetCard interaction={i} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <KpiCard

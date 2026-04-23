@@ -116,6 +116,8 @@ json InteractionRecord::ToJson() const {
   return json{
       {"sequence_id", sequence_id},
       {"session_id", session_id},
+      {"scenario_id", scenario_id},
+      {"host", host},
       {"timestamp", timestamp},
       {"provider", ProviderToString(provider)},
       {"model", model},
@@ -151,6 +153,8 @@ InteractionRecord InteractionRecord::FromJson(const json& j) {
 
   if (j.contains("sequence_id")) r.sequence_id = j["sequence_id"].get<uint64_t>();
   if (j.contains("session_id")) r.session_id = j["session_id"].get<std::string>();
+  if (j.contains("scenario_id")) r.scenario_id = j["scenario_id"].get<std::string>();
+  if (j.contains("host")) r.host = j["host"].get<std::string>();
   if (j.contains("timestamp")) r.timestamp = j["timestamp"].get<std::string>();
   if (j.contains("provider")) r.provider = ProviderFromString(j["provider"].get<std::string>());
   if (j.contains("model")) r.model = j["model"].get<std::string>();

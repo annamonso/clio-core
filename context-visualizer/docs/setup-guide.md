@@ -233,6 +233,84 @@ grep libdt_provenance_dt_intercept_anthropic_runtime /proc/$PID/maps | head -1
 # should point at $SCRATCH/bin/
 ```
 
+## Multi-agent *scenarios* (peer agents across nodes)
+
+The orchestrator↔subagent view already covers hierarchical `sid.N` sessions —
+collapse them into one conversation row. **Scenarios** group *independent* peer
+agents (no parent/child relation) that talk to each other via a remote-agent
+MCP tool. Typically one agent per compute node, sharing a single scenario id.
+
+### Launch peers with a scenario prefix
+
+Each agent's `ANTHROPIC_BASE_URL` gains a `/_scenario/<id>/` prefix before
+the session segment:
+
+```bash
+# On ares-comp-11 (Agent A — planner)
+ANTHROPIC_BASE_URL="http://ares-comp-11:5000/_scenario/expt-1/_session/planner-a" \
+  claude -p "…"
+
+# On ares-comp-12 (Agent B — fetcher)
+ANTHROPIC_BASE_URL="http://ares-comp-11:5000/_scenario/expt-1/_session/fetcher-b" \
+  claude -p "…"
+```
+
+Both agents POST to the *same* leader Flask on node-11. Every `InteractionRecord`
+written by the proxy chimod carries `scenario_id="expt-1"` and a `host` field
+stamped from `gethostname()` at the interceptor (or from an `X-Agent-Host`
+header when the agent lives on a different node).
+
+### Install the MCP relay on each agent's node
+
+The MCP relay exposes `call_remote_agent(to_host, to_session, prompt)` that
+both logs the cross-agent call and proxies it as an LLM call to the peer's
+Flask route. It lives at
+`context-exploration-engine/agent-interceptor/inter_agent_relay/`.
+
+```bash
+cd ~/clio-core/context-exploration-engine/agent-interceptor/inter_agent_relay
+python3 -m venv .venv
+.venv/bin/pip install -e .
+```
+
+Point `claude` at the relay via an MCP config entry. The env block carries
+per-agent defaults so tool invocations don't have to repeat them:
+
+```jsonc
+{
+  "mcpServers": {
+    "inter-agent": {
+      "command": "/abs/path/.venv/bin/inter-agent-relay",
+      "env": {
+        "DTP_LEADER_URL":   "http://ares-comp-11:5000",
+        "DTP_SCENARIO_ID":  "expt-1",
+        "DTP_FROM_HOST":    "ares-comp-11",
+        "DTP_FROM_SESSION": "planner-a"
+      }
+    }
+  }
+}
+```
+
+### Verify in the browser
+
+Open `http://127.0.0.1:5000/call-graph?tab=scenarios` through the tunnel. The
+left sidebar lists every scenario the ingest endpoint has seen. Pick one and
+each peer agent appears as a node (with a colored `host` chip), with dashed
+edges for every `inter_agent_msg` call between them. Solid edges remain for
+the orchestrator→subagent handoffs.
+
+### Smoke test
+
+```bash
+# Requires dt_demo_server + Flask running on the leader (Terminals A+B).
+bash ~/clio-core/context-visualizer/scripts/smoke-multi-agent-peers.sh
+```
+
+Defaults to a two-peer scenario via spoofed `X-Agent-Host` headers when you
+don't have a `salloc -N 2` allocation handy. Set `DTP_REAL_NODES=1` inside a
+two-node allocation to use `srun` for actual per-node placement.
+
 ## Shutdown (so you don't leak processes)
 
 In Terminal A, `Ctrl+C` `dt_demo_server`. In Terminal B, `Ctrl+C`
@@ -270,3 +348,11 @@ or its `--time` elapses.
 - `http_proxy` already carries `squid_user:squid_user` creds in the
   shell env — don't share screenshots of `env` output from the
   compute node outside your team.
+
+
+python -c "                                                                                                                         
+from context_visualizer.app import create_app                                                                                              
+app = create_app()                                     
+for r in sorted(app.url_map.iter_rules(), key=str):
+   print(r.rule, '->', r.endpoint)                                                                                                        
+"

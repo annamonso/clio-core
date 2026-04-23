@@ -107,6 +107,8 @@ struct InteractionRecord {
   // Identity
   uint64_t sequence_id = 0;
   std::string session_id;
+  std::string scenario_id;  // Multi-agent scenario tag (empty if unused)
+  std::string host;         // Hostname of the agent that emitted this request
   std::string timestamp;  // ISO 8601
   Provider provider = Provider::kUnknown;
   std::string model;

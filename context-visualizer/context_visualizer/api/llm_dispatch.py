@@ -348,6 +348,8 @@ _HOP_BY_HOP = frozenset({
     "connection", "keep-alive", "te", "trailers",
     "transfer-encoding", "upgrade", "host",
     "content-length", "accept-encoding", "content-encoding",
+    # Custom CEE headers — consumed by the bridge, not meaningful upstream
+    "x-agent-host",
 })
 
 # Session requirement message for agents without /_session/ prefix
@@ -405,10 +407,55 @@ def _build_session_rejection(provider):
         })
 
 
+# ── URL form reference ──────────────────────────────────────────────────────
+#
+# Optional prefixes, in this order, all independent:
+#
+#   /_host/<agent_host>/            ← stamps host on the InteractionRecord
+#   /_scenario/<scenario_id>/       ← stamps scenario_id
+#   /_session/<session_id>/         ← required; everything below is session
+#
+# Examples:
+#   /_session/my-sid/v1/messages                                            (legacy)
+#   /_scenario/expt-1/_session/planner-a/v1/messages                        (scenario only)
+#   /_host/ares-comp-12/_session/fetcher-b/v1/messages                      (host only)
+#   /_host/ares-comp-12/_scenario/expt-1/_session/fetcher-b/v1/messages    (both)
+#
+# The host prefix exists because the claude CLI cannot set custom headers
+# per-request. On HPC we want agents on different compute nodes to self-identify.
+# A wrapper script setting ANTHROPIC_BASE_URL to include `/_host/$(hostname)/`
+# is the cleanest way.
+
+
+@bp.route("/_host/<agent_host>/_scenario/<scenario_id>/_session/<session_id>/", defaults={"subpath": ""}, methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"])
+@bp.route("/_host/<agent_host>/_scenario/<scenario_id>/_session/<session_id>/<path:subpath>", methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"])
+def forward_request_with_host_and_scenario(agent_host, scenario_id, session_id, subpath):
+    return _forward_request_impl(session_id, subpath,
+                                 scenario_id=scenario_id, agent_host=agent_host)
+
+
+@bp.route("/_host/<agent_host>/_session/<session_id>/", defaults={"subpath": ""}, methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"])
+@bp.route("/_host/<agent_host>/_session/<session_id>/<path:subpath>", methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"])
+def forward_request_with_host(agent_host, session_id, subpath):
+    return _forward_request_impl(session_id, subpath,
+                                 scenario_id="", agent_host=agent_host)
+
+
+@bp.route("/_scenario/<scenario_id>/_session/<session_id>/", defaults={"subpath": ""}, methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"])
+@bp.route("/_scenario/<scenario_id>/_session/<session_id>/<path:subpath>", methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"])
+def forward_request_with_scenario(scenario_id, session_id, subpath):
+    """Scenario-aware variant: stamps scenario_id on every InteractionRecord."""
+    return _forward_request_impl(session_id, subpath, scenario_id=scenario_id)
+
+
 @bp.route("/_session/<session_id>/", defaults={"subpath": ""}, methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"])
 @bp.route("/_session/<session_id>/<path:subpath>", methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"])
 def forward_request(session_id, subpath):
     """Translate agent HTTP request into Chimaera Monitor query."""
+    return _forward_request_impl(session_id, subpath, scenario_id="")
+
+
+def _forward_request_impl(session_id, subpath, scenario_id="", agent_host=""):
     path = "/" + subpath if subpath else "/"
 
     # Detect provider from path/headers
@@ -439,6 +486,12 @@ def forward_request(session_id, subpath):
     # Record start time for latency measurement
     start_time = time.monotonic()
 
+    # Agent-reported host (optional; falls back to interceptor's own host on C++ side).
+    # URL prefix /_host/<h>/ wins; X-Agent-Host header (useful to the MCP relay)
+    # is the fallback.
+    if not agent_host:
+        agent_host = headers_dict.get("x-agent-host", "")
+
     # Submit to proxy ChiMod via pool_stats:// Monitor query
     try:
         result = chimaera_client.forward_llm_request(
@@ -448,6 +501,8 @@ def forward_request(session_id, subpath):
             headers=clean_headers,
             body=body_text,
             timeout=300,
+            scenario_id=scenario_id,
+            agent_host=agent_host,
         )
     except Exception as exc:
         return Response(

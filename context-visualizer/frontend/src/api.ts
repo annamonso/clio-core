@@ -1,4 +1,4 @@
-import type { AgentGraph, ClearScope, ConversationSummary, ConversationTurn, Interaction, InteractionSummary, SessionGraph, SessionInfo, ToolCallStep } from "./types";
+import type { AgentGraph, ClearScope, ConversationSummary, ConversationTurn, Interaction, InteractionSummary, ScenarioGraph, ScenarioSummary, SessionGraph, SessionInfo, ToolCallStep } from "./types";
 
 interface ListParams {
   limit?: number;
@@ -21,7 +21,34 @@ export async function listInteractions(
   const url = `/_interceptor/interactions${qs ? `?${qs}` : ""}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to list interactions: ${res.status}`);
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? (data as InteractionSummary[]) : [];
+}
+
+/**
+ * SSE stream of new interactions. The Flask backend does not yet implement
+ * ``/_interceptor/live`` — ``EventSource`` will raise `error` almost
+ * immediately and ``useLiveInteractions`` will fall back to polling on its
+ * own. We ship the call anyway so a future phase can add an SSE endpoint
+ * without touching the hook.
+ */
+export function openInteractionStream(
+  onEvent: (row: InteractionSummary) => void,
+  onError: () => void,
+): EventSource {
+  const source = new EventSource("/_interceptor/live");
+  source.addEventListener("interaction", (ev) => {
+    try {
+      const data = JSON.parse((ev as MessageEvent).data) as InteractionSummary;
+      onEvent(data);
+    } catch {
+      // Bad frame — the polling fallback will eventually resync.
+    }
+  });
+  source.addEventListener("error", () => {
+    onError();
+  });
+  return source;
 }
 
 export async function getInteraction(id: string): Promise<Interaction> {
@@ -73,6 +100,24 @@ export async function getAgentGraph(conversationId: string): Promise<AgentGraph>
   return {
     conversation_id: data.conversation_id ?? conversationId,
     nodes: Array.isArray(data.nodes) ? data.nodes : [],
+    edges: Array.isArray(data.edges) ? data.edges : [],
+  };
+}
+
+export async function getScenarios(): Promise<ScenarioSummary[]> {
+  const res = await fetch("/api/scenarios");
+  if (!res.ok) throw new Error(`Failed to list scenarios: ${res.status}`);
+  const data: unknown = await res.json();
+  return Array.isArray(data) ? (data as ScenarioSummary[]) : [];
+}
+
+export async function getScenarioGraph(scenarioId: string): Promise<ScenarioGraph> {
+  const res = await fetch(`/api/scenarios/${encodeURIComponent(scenarioId)}/graph`);
+  if (!res.ok) throw new Error(`Failed to get scenario graph: ${res.status}`);
+  const data = await res.json() as Partial<ScenarioGraph>;
+  return {
+    scenario_id: data.scenario_id ?? scenarioId,
+    agents: Array.isArray(data.agents) ? data.agents : [],
     edges: Array.isArray(data.edges) ? data.edges : [],
   };
 }
