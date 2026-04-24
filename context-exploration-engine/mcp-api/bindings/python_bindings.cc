@@ -12,6 +12,7 @@
 #include <mchips/client/mcp_client.h>
 #include <mchips/protocol/mcp_types.h>
 
+#include <mchips/protocol/json_rpc.h>
 namespace nb = nanobind;
 using namespace mchips::client;
 using namespace mchips::protocol;
@@ -109,7 +110,7 @@ NB_MODULE(mchips_ext, m) {
                          const std::string& name,
                          nb::dict py_args) -> CallToolResult {
            // Convert Python dict → nlohmann json
-           protocol::json args = protocol::json::object();
+           json args = json::object();
            for (auto [k, v] : py_args) {
              std::string key = nb::cast<std::string>(k);
              // Support str/int/float/bool values from Python

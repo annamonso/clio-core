@@ -83,6 +83,7 @@ set_target_properties(mchips_native_client PROPERTIES
 #------------------------------------------------------------------------------
 # Tests
 #------------------------------------------------------------------------------
-if(BUILD_TESTING)
-  add_subdirectory(test)
+
+if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+    add_subdirectory(test)
 endif()

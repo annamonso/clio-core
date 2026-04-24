@@ -5,3 +5,6 @@ frontend/dist/
 # Built SPA bundle — produced by `make workspace`, shipped with wheels
 # but not committed to the repo (the source of truth lives in frontend/).
 context_visualizer/static/workspace/
+
+# Cloned test-driver repo (scripts/test-call-graph.sh manages it)
+external/
