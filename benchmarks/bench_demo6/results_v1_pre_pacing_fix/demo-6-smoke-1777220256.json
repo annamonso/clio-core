@@ -1,0 +1,58 @@
+{
+  "agents": [
+    {
+      "agent_id": "executor-demo-6-smoke-1777220256",
+      "agent_role": "peer",
+      "host": "ares-comp-13",
+      "interaction_count": 6,
+      "session_id": "executor-demo-6-smoke-1777220256",
+      "sub_sessions": [
+        "executor-demo-6-smoke-1777220256",
+        "executor-demo-6-smoke-1777220256.2",
+        "executor-demo-6-smoke-1777220256.3",
+        "executor-demo-6-smoke-1777220256.4",
+        "executor-demo-6-smoke-1777220256.5",
+        "executor-demo-6-smoke-1777220256.6"
+      ],
+      "total_cost_usd": 0.108087,
+      "total_tokens": 1050
+    },
+    {
+      "agent_id": "planner-demo-6-smoke-1777220256",
+      "agent_role": "peer",
+      "host": "ares-comp-12",
+      "interaction_count": 19,
+      "session_id": "planner-demo-6-smoke-1777220256",
+      "sub_sessions": [
+        "planner-demo-6-smoke-1777220256",
+        "planner-demo-6-smoke-1777220256.2",
+        "planner-demo-6-smoke-1777220256.3",
+        "planner-demo-6-smoke-1777220256.4",
+        "planner-demo-6-smoke-1777220256.5",
+        "planner-demo-6-smoke-1777220256.6"
+      ],
+      "total_cost_usd": 0.2857065,
+      "total_tokens": 1014
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "demo-6-smoke-1777220256-1777220258057892221",
+      "event_id": "demo-6-smoke-1777220256-1777220258057892221",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor-demo-6-smoke-1777220256",
+      "from_sub_session_id": "executor-demo-6-smoke-1777220256",
+      "kind": "inter_agent_msg",
+      "latency_ms": 10.867999999999999,
+      "payload_preview": "need executor to gather memory and uptime info",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner-demo-6-smoke-1777220256",
+      "to_sub_session_id": "planner-demo-6-smoke-1777220256",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T16:20:08.909053Z",
+      "ts_start": "2026-04-26T16:20:08.882928Z"
+    }
+  ],
+  "scenario_id": "demo-6-smoke-1777220256"
+}

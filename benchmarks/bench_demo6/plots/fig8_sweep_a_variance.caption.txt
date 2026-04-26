@@ -1,0 +1,4 @@
+Six independent runs of demo-6 (planner on ares-comp-12, executor on ares-comp-13).
+Edge latency is the harness-measured RTT of the cross-host ingest POST.
+Distribution is tight (stdev 1.24 ms on 7.91 ms median); the cluster network's
+contribution to the inter-agent channel is stable at this sample size.

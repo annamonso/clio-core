@@ -1,0 +1,100 @@
+{
+  "agents": [
+    {
+      "agent_id": "executor",
+      "agent_role": "peer",
+      "host": "",
+      "interaction_count": 0,
+      "session_id": "executor",
+      "sub_sessions": [
+        "executor"
+      ],
+      "total_cost_usd": 0.0,
+      "total_tokens": 0
+    },
+    {
+      "agent_id": "executor-demo-6-var-007-r2",
+      "agent_role": "peer",
+      "host": "ares-comp-13",
+      "interaction_count": 6,
+      "session_id": "executor-demo-6-var-007-r2",
+      "sub_sessions": [
+        "executor-demo-6-var-007-r2",
+        "executor-demo-6-var-007-r2.2",
+        "executor-demo-6-var-007-r2.3",
+        "executor-demo-6-var-007-r2.4",
+        "executor-demo-6-var-007-r2.5",
+        "executor-demo-6-var-007-r2.6"
+      ],
+      "total_cost_usd": 0.07041330000000001,
+      "total_tokens": 1092
+    },
+    {
+      "agent_id": "planner",
+      "agent_role": "peer",
+      "host": "",
+      "interaction_count": 0,
+      "session_id": "planner",
+      "sub_sessions": [
+        "planner"
+      ],
+      "total_cost_usd": 0.0,
+      "total_tokens": 0
+    },
+    {
+      "agent_id": "planner-demo-6-var-007-r2",
+      "agent_role": "peer",
+      "host": "ares-comp-12",
+      "interaction_count": 7,
+      "session_id": "planner-demo-6-var-007-r2",
+      "sub_sessions": [
+        "planner-demo-6-var-007-r2",
+        "planner-demo-6-var-007-r2.2",
+        "planner-demo-6-var-007-r2.3",
+        "planner-demo-6-var-007-r2.4",
+        "planner-demo-6-var-007-r2.5",
+        "planner-demo-6-var-007-r2.6",
+        "planner-demo-6-var-007-r2.7"
+      ],
+      "total_cost_usd": 0.08894010000000001,
+      "total_tokens": 928
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "demo-6-var-007-r2-1777219076882647056",
+      "event_id": "demo-6-var-007-r2-1777219076882647056",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor",
+      "from_sub_session_id": "executor",
+      "kind": "inter_agent_msg",
+      "latency_ms": 8.72,
+      "payload_preview": "need executor to gather memory and uptime info",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner",
+      "to_sub_session_id": "planner",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T15:58:35.165915Z",
+      "ts_start": "2026-04-26T15:58:35.140796Z"
+    },
+    {
+      "correlation_id": "demo-6-var-007-r2-1777221930211887779",
+      "event_id": "demo-6-var-007-r2-1777221930211887779",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor-demo-6-var-007-r2",
+      "from_sub_session_id": "executor-demo-6-var-007-r2",
+      "kind": "inter_agent_msg",
+      "latency_ms": 7.435,
+      "payload_preview": "need executor to gather memory and uptime info",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner-demo-6-var-007-r2",
+      "to_sub_session_id": "planner-demo-6-var-007-r2",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T16:46:38.388293Z",
+      "ts_start": "2026-04-26T16:46:38.366050Z"
+    }
+  ],
+  "scenario_id": "demo-6-var-007-r2"
+}

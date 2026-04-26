@@ -1,0 +1,7 @@
+Edge latency for the cross-host ingest POST as payload size varies from 100 B to
+100 KB. The 100 B point reflects Flask cold-start variance from a service cycle
+immediately preceding the first batch and is marked separately. The 1 KB → 10 KB
+→ 100 KB sequence shows a slight upward trend (7.46 → 7.72 → 9.56 ms median),
+but stdev bands overlap heavily at this sample size — suggestive, not conclusive.
+A workload exposing strong payload-size scaling would require larger payloads or
+a slower channel; characterization of such a regime is future work.

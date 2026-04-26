@@ -1,0 +1,59 @@
+{
+  "agents": [
+    {
+      "agent_id": "executor-demo-6-pay-1kb-003",
+      "agent_role": "peer",
+      "host": "ares-comp-13",
+      "interaction_count": 6,
+      "session_id": "executor-demo-6-pay-1kb-003",
+      "sub_sessions": [
+        "executor-demo-6-pay-1kb-003",
+        "executor-demo-6-pay-1kb-003.2",
+        "executor-demo-6-pay-1kb-003.3",
+        "executor-demo-6-pay-1kb-003.4",
+        "executor-demo-6-pay-1kb-003.5",
+        "executor-demo-6-pay-1kb-003.6"
+      ],
+      "total_cost_usd": 0.0763752,
+      "total_tokens": 1095
+    },
+    {
+      "agent_id": "planner-demo-6-pay-1kb-003",
+      "agent_role": "peer",
+      "host": "ares-comp-12",
+      "interaction_count": 7,
+      "session_id": "planner-demo-6-pay-1kb-003",
+      "sub_sessions": [
+        "planner-demo-6-pay-1kb-003",
+        "planner-demo-6-pay-1kb-003.2",
+        "planner-demo-6-pay-1kb-003.3",
+        "planner-demo-6-pay-1kb-003.4",
+        "planner-demo-6-pay-1kb-003.5",
+        "planner-demo-6-pay-1kb-003.6",
+        "planner-demo-6-pay-1kb-003.7"
+      ],
+      "total_cost_usd": 0.09130169999999999,
+      "total_tokens": 984
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "demo-6-pay-1kb-003-1777227724970862564",
+      "event_id": "demo-6-pay-1kb-003-1777227724970862564",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor-demo-6-pay-1kb-003",
+      "from_sub_session_id": "executor-demo-6-pay-1kb-003",
+      "kind": "inter_agent_msg",
+      "latency_ms": 7.420000000000001,
+      "payload_preview": "need executor to gather memory and uptime info Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut eni",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner-demo-6-pay-1kb-003",
+      "to_sub_session_id": "planner-demo-6-pay-1kb-003",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T18:23:02.640767Z",
+      "ts_start": "2026-04-26T18:23:02.616713Z"
+    }
+  ],
+  "scenario_id": "demo-6-pay-1kb-003"
+}

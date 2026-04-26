@@ -1,0 +1,89 @@
+{
+  "agents": [
+    {
+      "agent_id": "executor",
+      "agent_role": "peer",
+      "host": "",
+      "interaction_count": 0,
+      "session_id": "executor",
+      "sub_sessions": [
+        "executor"
+      ],
+      "total_cost_usd": 0.0,
+      "total_tokens": 0
+    },
+    {
+      "agent_id": "executor-demo-6-pay-100b-001",
+      "agent_role": "peer",
+      "host": "ares-comp-13",
+      "interaction_count": 1,
+      "session_id": "executor-demo-6-pay-100b-001",
+      "sub_sessions": [
+        "executor-demo-6-pay-100b-001"
+      ],
+      "total_cost_usd": 0.0,
+      "total_tokens": 421
+    },
+    {
+      "agent_id": "planner",
+      "agent_role": "peer",
+      "host": "",
+      "interaction_count": 0,
+      "session_id": "planner",
+      "sub_sessions": [
+        "planner"
+      ],
+      "total_cost_usd": 0.0,
+      "total_tokens": 0
+    },
+    {
+      "agent_id": "planner-demo-6-pay-100b-001",
+      "agent_role": "peer",
+      "host": "ares-comp-12",
+      "interaction_count": 1,
+      "session_id": "planner-demo-6-pay-100b-001",
+      "sub_sessions": [
+        "planner-demo-6-pay-100b-001"
+      ],
+      "total_cost_usd": 0.0,
+      "total_tokens": 425
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "demo-6-pay-100b-001-1777216974652516726",
+      "event_id": "demo-6-pay-100b-001-1777216974652516726",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor",
+      "from_sub_session_id": "executor",
+      "kind": "inter_agent_msg",
+      "latency_ms": 11.424,
+      "payload_preview": "need executor to gather memory and uptime info Lorem ipsum dolor sit amet, consectetur adipiscing el",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner",
+      "to_sub_session_id": "planner",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T15:23:44.287838Z",
+      "ts_start": "2026-04-26T15:23:44.263364Z"
+    },
+    {
+      "correlation_id": "demo-6-pay-100b-001-1777223931738786941",
+      "event_id": "demo-6-pay-100b-001-1777223931738786941",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor-demo-6-pay-100b-001",
+      "from_sub_session_id": "executor-demo-6-pay-100b-001",
+      "kind": "inter_agent_msg",
+      "latency_ms": 7.111,
+      "payload_preview": "need executor to gather memory and uptime info Lorem ipsum dolor sit amet, consectetur adipiscing el",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner-demo-6-pay-100b-001",
+      "to_sub_session_id": "planner-demo-6-pay-100b-001",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T17:20:22.146404Z",
+      "ts_start": "2026-04-26T17:20:22.123330Z"
+    }
+  ],
+  "scenario_id": "demo-6-pay-100b-001"
+}

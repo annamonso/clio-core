@@ -1,0 +1,6 @@
+Same demo-6 workload, planner+executor co-located vs distributed across two
+compute nodes. Edge latency is statistically indistinguishable (7.87 vs 7.67 ms)
+— the cluster network is not the bottleneck at this payload size. Wall time
+grows by 44% in the distributed configuration; this overhead is in srun startup
+and cross-node scheduling, not in the inter-agent channel itself. n=3 per
+configuration.

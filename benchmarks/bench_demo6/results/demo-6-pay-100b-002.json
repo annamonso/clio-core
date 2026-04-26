@@ -1,0 +1,57 @@
+{
+  "agents": [
+    {
+      "agent_id": "executor-demo-6-pay-100b-002",
+      "agent_role": "peer",
+      "host": "ares-comp-13",
+      "interaction_count": 5,
+      "session_id": "executor-demo-6-pay-100b-002",
+      "sub_sessions": [
+        "executor-demo-6-pay-100b-002",
+        "executor-demo-6-pay-100b-002.2",
+        "executor-demo-6-pay-100b-002.3",
+        "executor-demo-6-pay-100b-002.4",
+        "executor-demo-6-pay-100b-002.5"
+      ],
+      "total_cost_usd": 0.0670116,
+      "total_tokens": 1068
+    },
+    {
+      "agent_id": "planner-demo-6-pay-100b-002",
+      "agent_role": "peer",
+      "host": "ares-comp-12",
+      "interaction_count": 6,
+      "session_id": "planner-demo-6-pay-100b-002",
+      "sub_sessions": [
+        "planner-demo-6-pay-100b-002",
+        "planner-demo-6-pay-100b-002.2",
+        "planner-demo-6-pay-100b-002.3",
+        "planner-demo-6-pay-100b-002.4",
+        "planner-demo-6-pay-100b-002.5",
+        "planner-demo-6-pay-100b-002.6"
+      ],
+      "total_cost_usd": 0.0743892,
+      "total_tokens": 965
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "demo-6-pay-100b-002-1777227036167232652",
+      "event_id": "demo-6-pay-100b-002-1777227036167232652",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor-demo-6-pay-100b-002",
+      "from_sub_session_id": "executor-demo-6-pay-100b-002",
+      "kind": "inter_agent_msg",
+      "latency_ms": 7.89,
+      "payload_preview": "need executor to gather memory and uptime info Lorem ipsum dolor sit amet, consectetur adipiscing el",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner-demo-6-pay-100b-002",
+      "to_sub_session_id": "planner-demo-6-pay-100b-002",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T18:11:17.070373Z",
+      "ts_start": "2026-04-26T18:11:17.046234Z"
+    }
+  ],
+  "scenario_id": "demo-6-pay-100b-002"
+}

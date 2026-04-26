@@ -1,0 +1,59 @@
+{
+  "agents": [
+    {
+      "agent_id": "executor-demo-6-pay-100kb-003-r1",
+      "agent_role": "peer",
+      "host": "ares-comp-13",
+      "interaction_count": 6,
+      "session_id": "executor-demo-6-pay-100kb-003-r1",
+      "sub_sessions": [
+        "executor-demo-6-pay-100kb-003-r1",
+        "executor-demo-6-pay-100kb-003-r1.2",
+        "executor-demo-6-pay-100kb-003-r1.3",
+        "executor-demo-6-pay-100kb-003-r1.4",
+        "executor-demo-6-pay-100kb-003-r1.5",
+        "executor-demo-6-pay-100kb-003-r1.6"
+      ],
+      "total_cost_usd": 0.0787947,
+      "total_tokens": 1058
+    },
+    {
+      "agent_id": "planner-demo-6-pay-100kb-003-r1",
+      "agent_role": "peer",
+      "host": "ares-comp-12",
+      "interaction_count": 7,
+      "session_id": "planner-demo-6-pay-100kb-003-r1",
+      "sub_sessions": [
+        "planner-demo-6-pay-100kb-003-r1",
+        "planner-demo-6-pay-100kb-003-r1.2",
+        "planner-demo-6-pay-100kb-003-r1.3",
+        "planner-demo-6-pay-100kb-003-r1.4",
+        "planner-demo-6-pay-100kb-003-r1.5",
+        "planner-demo-6-pay-100kb-003-r1.6",
+        "planner-demo-6-pay-100kb-003-r1.7"
+      ],
+      "total_cost_usd": 0.09011730000000001,
+      "total_tokens": 899
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "demo-6-pay-100kb-003-r1-1777230102650171017",
+      "event_id": "demo-6-pay-100kb-003-r1-1777230102650171017",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor-demo-6-pay-100kb-003-r1",
+      "from_sub_session_id": "executor-demo-6-pay-100kb-003-r1",
+      "kind": "inter_agent_msg",
+      "latency_ms": 8.64,
+      "payload_preview": "need executor to gather memory and uptime info Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut eni",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner-demo-6-pay-100kb-003-r1",
+      "to_sub_session_id": "planner-demo-6-pay-100kb-003-r1",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T19:02:24.009073Z",
+      "ts_start": "2026-04-26T19:02:23.986206Z"
+    }
+  ],
+  "scenario_id": "demo-6-pay-100kb-003-r1"
+}

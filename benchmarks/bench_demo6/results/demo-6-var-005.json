@@ -1,0 +1,58 @@
+{
+  "agents": [
+    {
+      "agent_id": "executor-demo-6-var-005",
+      "agent_role": "peer",
+      "host": "ares-comp-13",
+      "interaction_count": 6,
+      "session_id": "executor-demo-6-var-005",
+      "sub_sessions": [
+        "executor-demo-6-var-005",
+        "executor-demo-6-var-005.2",
+        "executor-demo-6-var-005.3",
+        "executor-demo-6-var-005.4",
+        "executor-demo-6-var-005.5",
+        "executor-demo-6-var-005.6"
+      ],
+      "total_cost_usd": 0.0794667,
+      "total_tokens": 984
+    },
+    {
+      "agent_id": "planner-demo-6-var-005",
+      "agent_role": "peer",
+      "host": "ares-comp-12",
+      "interaction_count": 6,
+      "session_id": "planner-demo-6-var-005",
+      "sub_sessions": [
+        "planner-demo-6-var-005",
+        "planner-demo-6-var-005.2",
+        "planner-demo-6-var-005.3",
+        "planner-demo-6-var-005.4",
+        "planner-demo-6-var-005.5",
+        "planner-demo-6-var-005.6"
+      ],
+      "total_cost_usd": 0.07699560000000001,
+      "total_tokens": 998
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "demo-6-var-005-1777226519357632585",
+      "event_id": "demo-6-var-005-1777226519357632585",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor-demo-6-var-005",
+      "from_sub_session_id": "executor-demo-6-var-005",
+      "kind": "inter_agent_msg",
+      "latency_ms": 7.8,
+      "payload_preview": "need executor to gather memory and uptime info",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner-demo-6-var-005",
+      "to_sub_session_id": "planner-demo-6-var-005",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T18:02:41.035109Z",
+      "ts_start": "2026-04-26T18:02:41.010202Z"
+    }
+  ],
+  "scenario_id": "demo-6-var-005"
+}

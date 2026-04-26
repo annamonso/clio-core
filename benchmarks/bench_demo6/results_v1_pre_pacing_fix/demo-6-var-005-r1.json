@@ -1,0 +1,59 @@
+{
+  "agents": [
+    {
+      "agent_id": "executor-demo-6-var-005-r1",
+      "agent_role": "peer",
+      "host": "ares-comp-13",
+      "interaction_count": 6,
+      "session_id": "executor-demo-6-var-005-r1",
+      "sub_sessions": [
+        "executor-demo-6-var-005-r1",
+        "executor-demo-6-var-005-r1.2",
+        "executor-demo-6-var-005-r1.3",
+        "executor-demo-6-var-005-r1.4",
+        "executor-demo-6-var-005-r1.5",
+        "executor-demo-6-var-005-r1.6"
+      ],
+      "total_cost_usd": 0.07566990000000001,
+      "total_tokens": 1038
+    },
+    {
+      "agent_id": "planner-demo-6-var-005-r1",
+      "agent_role": "peer",
+      "host": "ares-comp-12",
+      "interaction_count": 7,
+      "session_id": "planner-demo-6-var-005-r1",
+      "sub_sessions": [
+        "planner-demo-6-var-005-r1",
+        "planner-demo-6-var-005-r1.2",
+        "planner-demo-6-var-005-r1.3",
+        "planner-demo-6-var-005-r1.4",
+        "planner-demo-6-var-005-r1.5",
+        "planner-demo-6-var-005-r1.6",
+        "planner-demo-6-var-005-r1.7"
+      ],
+      "total_cost_usd": 0.0876414,
+      "total_tokens": 945
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "demo-6-var-005-r1-1777221183287708069",
+      "event_id": "demo-6-var-005-r1-1777221183287708069",
+      "from_host": "ares-comp-13",
+      "from_session_id": "executor-demo-6-var-005-r1",
+      "from_sub_session_id": "executor-demo-6-var-005-r1",
+      "kind": "inter_agent_msg",
+      "latency_ms": 9.243,
+      "payload_preview": "need executor to gather memory and uptime info",
+      "status": "ok",
+      "to_host": "ares-comp-12",
+      "to_session_id": "planner-demo-6-var-005-r1",
+      "to_sub_session_id": "planner-demo-6-var-005-r1",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T16:33:50.480369Z",
+      "ts_start": "2026-04-26T16:33:50.455216Z"
+    }
+  ],
+  "scenario_id": "demo-6-var-005-r1"
+}
