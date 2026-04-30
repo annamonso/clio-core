@@ -1,0 +1,127 @@
+{
+  "scenario_id": "intra-n10-001",
+  "planner_session_id": "planner-intra-n10-001",
+  "sub_sessions": [
+    "planner-intra-n10-001",
+    "planner-intra-n10-001.2",
+    "planner-intra-n10-001.3"
+  ],
+  "interactions": [
+    {
+      "session_id": "planner-intra-n10-001",
+      "seq": 24,
+      "model": "claude-haiku-4-5-20251001",
+      "system_prompt_head": "x-anthropic-billing-header: cc_version=2.1.119.120; cc_entrypoint=sdk-cli; cch=324ac; You are a Claude agent, built on A",
+      "response_text": "{\"title\": \"Parallel bash tool execution test\"}",
+      "token_usage": {
+        "cache_creation_tokens": null,
+        "cache_read_tokens": null,
+        "input_tokens": 523,
+        "output_tokens": 14,
+        "total_tokens": null
+      },
+      "tool_calls": []
+    },
+    {
+      "session_id": "planner-intra-n10-001.2",
+      "seq": 25,
+      "model": "claude-sonnet-4-6",
+      "system_prompt_head": "x-anthropic-billing-header: cc_version=2.1.119.120; cc_entrypoint=sdk-cli; cch=5f809; You are a Claude agent, built on A",
+      "response_text": "",
+      "token_usage": {
+        "cache_creation_tokens": null,
+        "cache_read_tokens": null,
+        "input_tokens": 3,
+        "output_tokens": 520,
+        "total_tokens": null
+      },
+      "tool_calls": [
+        {
+          "id": "toolu_01CEeDnTuiBpMwtbBbc3s12m",
+          "input": {
+            "command": "sleep 1.0; echo tool_1_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_01HrYx4Efkf4Neb3kgxWru9Y",
+          "input": {
+            "command": "sleep 1.0; echo tool_2_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_012tGh36gpjS6iZgAorqXExc",
+          "input": {
+            "command": "sleep 1.0; echo tool_3_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_01PH9sdigRnA78K7tCEWc4C2",
+          "input": {
+            "command": "sleep 1.0; echo tool_4_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_018DqWjVLJLuvqmKVqfvxTVL",
+          "input": {
+            "command": "sleep 1.0; echo tool_5_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_01GrKwVzPiJbe5XfrKNQShcj",
+          "input": {
+            "command": "sleep 1.0; echo tool_6_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_012GfZ93QN81aGmEc1xQH99W",
+          "input": {
+            "command": "sleep 1.0; echo tool_7_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_019ExLDNjwgSxBUWYuJgQMqM",
+          "input": {
+            "command": "sleep 1.0; echo tool_8_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_01PgxECs3XEiBJJ7BaZ1eki5",
+          "input": {
+            "command": "sleep 1.0; echo tool_9_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_01WSwkYFbDGUhyo1ddf8E1qa",
+          "input": {
+            "command": "sleep 1.0; echo tool_10_done"
+          },
+          "name": "Bash"
+        }
+      ]
+    },
+    {
+      "session_id": "planner-intra-n10-001.3",
+      "seq": 26,
+      "model": "claude-sonnet-4-6",
+      "system_prompt_head": "x-anthropic-billing-header: cc_version=2.1.119.120; cc_entrypoint=sdk-cli; cch=2b1b3; You are a Claude agent, built on A",
+      "response_text": "All 10 parallel Bash calls completed successfully, each returning their respective `tool_<i>_done` confirmation.",
+      "token_usage": {
+        "cache_creation_tokens": null,
+        "cache_read_tokens": null,
+        "input_tokens": 65,
+        "output_tokens": 29,
+        "total_tokens": null
+      },
+      "tool_calls": []
+    }
+  ]
+}

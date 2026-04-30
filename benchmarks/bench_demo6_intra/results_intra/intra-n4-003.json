@@ -1,0 +1,85 @@
+{
+  "scenario_id": "intra-n4-003",
+  "planner_session_id": "planner-intra-n4-003",
+  "sub_sessions": [
+    "planner-intra-n4-003",
+    "planner-intra-n4-003.2",
+    "planner-intra-n4-003.3"
+  ],
+  "interactions": [
+    {
+      "session_id": "planner-intra-n4-003",
+      "seq": 21,
+      "model": "claude-haiku-4-5-20251001",
+      "system_prompt_head": "x-anthropic-billing-header: cc_version=2.1.119.120; cc_entrypoint=sdk-cli; cch=4e343; You are a Claude agent, built on A",
+      "response_text": "{\"title\": \"Execute parallel bash commands\"}",
+      "token_usage": {
+        "cache_creation_tokens": null,
+        "cache_read_tokens": null,
+        "input_tokens": 523,
+        "output_tokens": 12,
+        "total_tokens": null
+      },
+      "tool_calls": []
+    },
+    {
+      "session_id": "planner-intra-n4-003.2",
+      "seq": 22,
+      "model": "claude-sonnet-4-6",
+      "system_prompt_head": "x-anthropic-billing-header: cc_version=2.1.119.120; cc_entrypoint=sdk-cli; cch=3340a; You are a Claude agent, built on A",
+      "response_text": "",
+      "token_usage": {
+        "cache_creation_tokens": null,
+        "cache_read_tokens": null,
+        "input_tokens": 3,
+        "output_tokens": 245,
+        "total_tokens": null
+      },
+      "tool_calls": [
+        {
+          "id": "toolu_01NFKSknopmKnWskdGXzZeJe",
+          "input": {
+            "command": "sleep 1.0; echo tool_1_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_018mHTa3JtC6wsTqPAijsoPe",
+          "input": {
+            "command": "sleep 1.0; echo tool_2_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_014A8tWAHiGAYMwF4VHUAwKB",
+          "input": {
+            "command": "sleep 1.0; echo tool_3_done"
+          },
+          "name": "Bash"
+        },
+        {
+          "id": "toolu_01NakSTNfGs3qgGZFaGBz2yZ",
+          "input": {
+            "command": "sleep 1.0; echo tool_4_done"
+          },
+          "name": "Bash"
+        }
+      ]
+    },
+    {
+      "session_id": "planner-intra-n4-003.3",
+      "seq": 23,
+      "model": "claude-sonnet-4-6",
+      "system_prompt_head": "x-anthropic-billing-header: cc_version=2.1.119.120; cc_entrypoint=sdk-cli; cch=7a2a4; You are a Claude agent, built on A",
+      "response_text": "All 4 parallel Bash calls completed successfully (tool_1_done through tool_4_done).",
+      "token_usage": {
+        "cache_creation_tokens": null,
+        "cache_read_tokens": null,
+        "input_tokens": 1,
+        "output_tokens": 26,
+        "total_tokens": null
+      },
+      "tool_calls": []
+    }
+  ]
+}

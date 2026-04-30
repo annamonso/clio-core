@@ -1,0 +1,121 @@
+{
+  "agents": [
+    {
+      "agent_id": "controller-star3-001",
+      "agent_role": "peer",
+      "host": "",
+      "interaction_count": 0,
+      "session_id": "controller-star3-001",
+      "sub_sessions": [
+        "controller-star3-001"
+      ],
+      "total_cost_usd": 0.0,
+      "total_tokens": 0
+    },
+    {
+      "agent_id": "worker1-star3-001",
+      "agent_role": "peer",
+      "host": "ares-comp-14",
+      "interaction_count": 6,
+      "session_id": "worker1-star3-001",
+      "sub_sessions": [
+        "worker1-star3-001",
+        "worker1-star3-001.2",
+        "worker1-star3-001.3",
+        "worker1-star3-001.4",
+        "worker1-star3-001.5",
+        "worker1-star3-001.6"
+      ],
+      "total_cost_usd": 0.0746709,
+      "total_tokens": 990
+    },
+    {
+      "agent_id": "worker2-star3-001",
+      "agent_role": "peer",
+      "host": "ares-comp-15",
+      "interaction_count": 6,
+      "session_id": "worker2-star3-001",
+      "sub_sessions": [
+        "worker2-star3-001",
+        "worker2-star3-001.2",
+        "worker2-star3-001.3",
+        "worker2-star3-001.4",
+        "worker2-star3-001.5",
+        "worker2-star3-001.6"
+      ],
+      "total_cost_usd": 0.0752361,
+      "total_tokens": 1081
+    },
+    {
+      "agent_id": "worker3-star3-001",
+      "agent_role": "peer",
+      "host": "ares-comp-16",
+      "interaction_count": 6,
+      "session_id": "worker3-star3-001",
+      "sub_sessions": [
+        "worker3-star3-001",
+        "worker3-star3-001.2",
+        "worker3-star3-001.3",
+        "worker3-star3-001.4",
+        "worker3-star3-001.5",
+        "worker3-star3-001.6"
+      ],
+      "total_cost_usd": 0.0983118,
+      "total_tokens": 946
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "star3-star3-001-w1",
+      "event_id": "star3-star3-001-w1",
+      "from_host": "ares-comp-13",
+      "from_session_id": "controller-star3-001",
+      "from_sub_session_id": "controller-star3-001",
+      "kind": "inter_agent_msg",
+      "latency_ms": 9.351999999999999,
+      "payload_preview": "need executor to gather memory and uptime info",
+      "status": "ok",
+      "to_host": "ares-comp-14",
+      "to_session_id": "worker1-star3-001",
+      "to_sub_session_id": "worker1-star3-001",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T22:20:31.387085Z",
+      "ts_start": "2026-04-26T22:20:31.363061Z"
+    },
+    {
+      "correlation_id": "star3-star3-001-w3",
+      "event_id": "star3-star3-001-w3",
+      "from_host": "ares-comp-13",
+      "from_session_id": "controller-star3-001",
+      "from_sub_session_id": "controller-star3-001",
+      "kind": "inter_agent_msg",
+      "latency_ms": 9.16,
+      "payload_preview": "need executor to gather memory and uptime info",
+      "status": "ok",
+      "to_host": "ares-comp-16",
+      "to_session_id": "worker3-star3-001",
+      "to_sub_session_id": "worker3-star3-001",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T22:20:31.391783Z",
+      "ts_start": "2026-04-26T22:20:31.367629Z"
+    },
+    {
+      "correlation_id": "star3-star3-001-w2",
+      "event_id": "star3-star3-001-w2",
+      "from_host": "ares-comp-13",
+      "from_session_id": "controller-star3-001",
+      "from_sub_session_id": "controller-star3-001",
+      "kind": "inter_agent_msg",
+      "latency_ms": 6.309,
+      "payload_preview": "need executor to gather memory and uptime info",
+      "status": "ok",
+      "to_host": "ares-comp-15",
+      "to_session_id": "worker2-star3-001",
+      "to_sub_session_id": "worker2-star3-001",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T22:20:31.393803Z",
+      "ts_start": "2026-04-26T22:20:31.372776Z"
+    }
+  ],
+  "scenario_id": "star3-001"
+}

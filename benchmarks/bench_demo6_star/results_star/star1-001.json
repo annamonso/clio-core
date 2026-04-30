@@ -1,0 +1,53 @@
+{
+  "agents": [
+    {
+      "agent_id": "controller-star1-001",
+      "agent_role": "peer",
+      "host": "",
+      "interaction_count": 0,
+      "session_id": "controller-star1-001",
+      "sub_sessions": [
+        "controller-star1-001"
+      ],
+      "total_cost_usd": 0.0,
+      "total_tokens": 0
+    },
+    {
+      "agent_id": "worker1-star1-001",
+      "agent_role": "peer",
+      "host": "ares-comp-14",
+      "interaction_count": 6,
+      "session_id": "worker1-star1-001",
+      "sub_sessions": [
+        "worker1-star1-001",
+        "worker1-star1-001.2",
+        "worker1-star1-001.3",
+        "worker1-star1-001.4",
+        "worker1-star1-001.5",
+        "worker1-star1-001.6"
+      ],
+      "total_cost_usd": 0.0785064,
+      "total_tokens": 1093
+    }
+  ],
+  "edges": [
+    {
+      "correlation_id": "star1-star1-001-w1",
+      "event_id": "star1-star1-001-w1",
+      "from_host": "ares-comp-13",
+      "from_session_id": "controller-star1-001",
+      "from_sub_session_id": "controller-star1-001",
+      "kind": "inter_agent_msg",
+      "latency_ms": 7.4510000000000005,
+      "payload_preview": "need executor to gather memory and uptime info",
+      "status": "ok",
+      "to_host": "ares-comp-14",
+      "to_session_id": "worker1-star1-001",
+      "to_sub_session_id": "worker1-star1-001",
+      "tool_name": "delegate_to_executor",
+      "ts_done": "2026-04-26T22:13:59.834385Z",
+      "ts_start": "2026-04-26T22:13:59.810854Z"
+    }
+  ],
+  "scenario_id": "star1-001"
+}

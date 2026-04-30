@@ -1,0 +1,64 @@
+{
+  "scenario_id": "intra-n1-001",
+  "planner_session_id": "planner-intra-n1-001",
+  "sub_sessions": [
+    "planner-intra-n1-001",
+    "planner-intra-n1-001.2",
+    "planner-intra-n1-001.3"
+  ],
+  "interactions": [
+    {
+      "session_id": "planner-intra-n1-001",
+      "seq": 6,
+      "model": "claude-haiku-4-5-20251001",
+      "system_prompt_head": "x-anthropic-billing-header: cc_version=2.1.119.120; cc_entrypoint=sdk-cli; cch=18f1b; You are a Claude agent, built on A",
+      "response_text": "{\"title\": \"Execute parallel bash commands efficiently\"}",
+      "token_usage": {
+        "cache_creation_tokens": null,
+        "cache_read_tokens": null,
+        "input_tokens": 523,
+        "output_tokens": 13,
+        "total_tokens": null
+      },
+      "tool_calls": []
+    },
+    {
+      "session_id": "planner-intra-n1-001.2",
+      "seq": 7,
+      "model": "claude-sonnet-4-6",
+      "system_prompt_head": "x-anthropic-billing-header: cc_version=2.1.119.120; cc_entrypoint=sdk-cli; cch=e96bd; You are a Claude agent, built on A",
+      "response_text": "",
+      "token_usage": {
+        "cache_creation_tokens": null,
+        "cache_read_tokens": null,
+        "input_tokens": 3,
+        "output_tokens": 109,
+        "total_tokens": null
+      },
+      "tool_calls": [
+        {
+          "id": "toolu_01NaTnom3mxGM5bghrATtXVy",
+          "input": {
+            "command": "sleep 1.0; echo tool_1_done"
+          },
+          "name": "Bash"
+        }
+      ]
+    },
+    {
+      "session_id": "planner-intra-n1-001.3",
+      "seq": 8,
+      "model": "claude-sonnet-4-6",
+      "system_prompt_head": "x-anthropic-billing-header: cc_version=2.1.119.120; cc_entrypoint=sdk-cli; cch=27796; You are a Claude agent, built on A",
+      "response_text": "All 1 tool call completed successfully.",
+      "token_usage": {
+        "cache_creation_tokens": null,
+        "cache_read_tokens": null,
+        "input_tokens": 1,
+        "output_tokens": 12,
+        "total_tokens": null
+      },
+      "tool_calls": []
+    }
+  ]
+}
